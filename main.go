@@ -6,15 +6,22 @@ import (
 	"github.com/plordb/bookings/helpers"
 )
 
-// 02-10
+// 02-12
+
+const numPool = 10
+
+func CalculateValue(intChan chan int) {
+	RandomNumber := helpers.RandomNumber(numPool)
+	intChan <- RandomNumber
+}
 
 func main() {
-	log.Println("Hello")
+	intChan := make(chan int)
+	defer close(intChan)
 
-	var myVar helpers.SomeType
-	myVar.TypeName = "Some name"
-	myVar.TypeNumber = 5
+	go CalculateValue(intChan)
 
-	log.Println(myVar.TypeName)
-	log.Println(myVar.TypeNumber)
+	num := <-intChan
+
+	log.Println(num)
 }
