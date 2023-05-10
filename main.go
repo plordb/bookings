@@ -1,27 +1,42 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
-
-	"github.com/plordb/bookings/helpers"
 )
 
-// 02-12
+// 02-13
 
-const numPool = 10
-
-func CalculateValue(intChan chan int) {
-	RandomNumber := helpers.RandomNumber(numPool)
-	intChan <- RandomNumber
+type Person struct {
+	FirstName string `json:"first_name"`
+	LasttName string `json:"last_name"`
+	HairColor string `json:"hair_color"`
+	HasDog    bool   `json:has_dog`
 }
 
 func main() {
-	intChan := make(chan int)
-	defer close(intChan)
+	myJson := `
+[
+	{
+		"first_name": "Pablo",
+		"Last_name": "Lorenzo",
+		"hair_color": "black",
+		"has_dog": true
+	},
+	{
+		"first_name": "Clark",
+		"Last_name": "Kent",
+		"hair_color": "black",
+		"has_dog": false
+	}
+]`
 
-	go CalculateValue(intChan)
+	var unmarshalled []Person
 
-	num := <-intChan
+	err := json.Unmarshal([]byte(myJson), &unmarshalled)
+	if err != nil {
+		log.Println("Error unmarshalling json", err)
+	}
 
-	log.Println(num)
+	log.Printf("unmarshalled: %v", unmarshalled)
 }
