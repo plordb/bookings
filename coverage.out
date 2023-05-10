@@ -1,0 +1,7 @@
+mode: set
+github.com/plordb/bookings/main.go:10.13,13.16 2 0
+github.com/plordb/bookings/main.go:13.16,17.3 2 0
+github.com/plordb/bookings/main.go:19.2,19.46 1 0
+github.com/plordb/bookings/main.go:22.52,25.12 2 0
+github.com/plordb/bookings/main.go:25.12,27.3 1 0
+github.com/plordb/bookings/main.go:29.2,30.20 2 0
