@@ -1,31 +1,25 @@
 package main
 
 import (
-	"errors"
-	"log"
+	"fmt"
+	"net/http"
 )
 
-// 02-14
+// 03-02
+
+//const portNumber = ":8080"
 
 func main() {
 
-	result, err := divide(100.0, 10.0)
-	if err != nil {
-		log.Println(err)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-		return
-	}
+		n, err := fmt.Fprintf(w, "Hola, Mundo")
+		if err != nil {
+			fmt.Println(err)
+		}
 
-	log.Println("result of division is", result)
-}
+		fmt.Println(fmt.Sprintf("Number of bytes written: %d", n))
+	})
 
-func divide(x float32, y float32) (float32, error) {
-	var result float32
-
-	if y == 0 {
-		return result, errors.New(("cannot divide by 0"))
-	}
-
-	result = x / y
-	return result, nil
+	_ = http.ListenAndServe(":8080", nil)
 }
