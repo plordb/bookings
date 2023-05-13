@@ -10,7 +10,7 @@ import (
 	"github.com/plordb/bookings/pkg/render"
 )
 
-// 03-11
+// 03-13
 
 const portNumber = ":8080"
 
@@ -24,9 +24,15 @@ func main() {
 	}
 
 	app.TemplateCache = tc
+	app.UseCache = false
 
-	http.HandleFunc("/", handlers.Home)
-	http.HandleFunc("/about", handlers.About)
+	repo := handlers.NewRepo(&app)
+	handlers.NewHandlers(repo)
+
+	render.NewTemplates(&app)
+
+	http.HandleFunc("/", handlers.Repo.Home)
+	http.HandleFunc("/about", handlers.Repo.About)
 
 	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
 

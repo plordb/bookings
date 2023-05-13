@@ -7,31 +7,42 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/plordb/bookings/pkg/config"
 )
 
 var functions = template.FuncMap{}
 
+var app *config.AppConfig
+
+// NewTemplates set the config for the template package
+func NewTemplates(a *config.AppConfig) {
+	app = a
+}
+
 // render templates using html/template
 func RenderTemplate(w http.ResponseWriter, gohtml string) {
 
-	// get the template cache from the app config
+	var tc map[string]*template.Template
 
-	tc, err := CreateTemplateCache()
-	if err != nil {
-		log.Fatal(err)
+	if app.UseCache {
+		// get the template cache from the app config
+		tc = app.TemplateCache
+	} else {
+		tc, _ = CreateTemplateCache()
 	}
 
 	t, ok := tc[gohtml]
 
 	if !ok {
-		log.Fatal(err)
+		log.Fatal("Could not get template from template cache")
 	}
 
 	buf := new(bytes.Buffer)
 
 	_ = t.Execute(buf, nil)
 
-	_, err = buf.WriteTo(w)
+	_, err := buf.WriteTo(w)
 	if err != nil {
 		fmt.Println("Error writing template to broser", err)
 	}
