@@ -14,6 +14,8 @@ var functions = template.FuncMap{}
 // render templates using html/template
 func RenderTemplate(w http.ResponseWriter, gohtml string) {
 
+	// get the template cache from the app config
+
 	tc, err := CreateTemplateCache()
 	if err != nil {
 		log.Fatal(err)
