@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/plordb/bookings/pkg/config"
+	"github.com/plordb/bookings/pkg/models"
 	"github.com/plordb/bookings/pkg/render"
 )
 
@@ -28,9 +29,18 @@ func NewHandlers(r *Repository) {
 }
 
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(w, "home.gohtml")
+	render.RenderTemplate(w, "home.gohtml", &models.TemplateData{})
 }
 
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(w, "about.gohtml")
+
+	// performs some logic
+	stringMap := make(map[string]string)
+	stringMap["test"] = "Hola, otra vez."
+
+	// send the data to the template
+	render.RenderTemplate(w, "about.gohtml", &models.TemplateData{
+		StringMap: stringMap,
+	})
+
 }

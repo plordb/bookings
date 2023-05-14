@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/plordb/bookings/pkg/config"
+	"github.com/plordb/bookings/pkg/models"
 )
 
 var functions = template.FuncMap{}
@@ -20,8 +21,14 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
+// AddDefaultData add template data
+func AddDefaultData(td *models.TemplateData) *models.TemplateData {
+
+	return td
+}
+
 // render templates using html/template
-func RenderTemplate(w http.ResponseWriter, gohtml string) {
+func RenderTemplate(w http.ResponseWriter, gohtml string, td *models.TemplateData) {
 
 	var tc map[string]*template.Template
 
@@ -40,7 +47,9 @@ func RenderTemplate(w http.ResponseWriter, gohtml string) {
 
 	buf := new(bytes.Buffer)
 
-	_ = t.Execute(buf, nil)
+	td = AddDefaultData(td)
+
+	_ = t.Execute(buf, td)
 
 	_, err := buf.WriteTo(w)
 	if err != nil {
