@@ -1,4 +1,4 @@
 main
 subo.sh
-html-source/
-static/
+html-source
+static
