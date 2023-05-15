@@ -12,7 +12,7 @@ import (
 	"github.com/plordb/bookings/pkg/render"
 )
 
-// 06-06(checar 06-07 = Reservation forms)
+// 06-07
 
 const portNumber = ":8080"
 const SessionHoras = 24
