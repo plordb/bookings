@@ -134,6 +134,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.2/dist/js/datepicker-full.min.js"></script>
         <script src="https://unpkg.com/notie"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script type="text/javascript">
 
@@ -159,9 +160,11 @@
            
             document.getElementById("colorButton").addEventListener("click", function () {
 
-                notify("This is my message", "warning")
+                //notify("This is my message", "warning")
+
+                notifyModal("Título", "<em>Hola, mundo</em>", "success", "Mi texto del botón")
             })
-            
+
             const elem = document.getElementById('reservation-dates');
             const rangepicker = new DateRangePicker(elem, {
                 format: "yyyy-mm-dd"
@@ -173,6 +176,16 @@
                     type: msgType,
                     text: msg,
                     })
+            }
+
+            function notifyModal(title, text, icon, confirmationButtonText) {
+
+                Swal.fire({
+                    title: title,
+                    html: text,
+                    icon: icon,
+                    confirmButtonText: confirmationButtonText
+                })
             }
 
         </script>
