@@ -83,14 +83,14 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 }
 
 type jsonResponse struct {
-	OK      bool   `json: "ok"`
+	Ok      bool   `json: "ok"`
 	Message string `json: "message"`
 }
 
 // AvailabilityJSON handles request for availability and send JSON response
 func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 	resp := jsonResponse{
-		OK:      true,
+		Ok:      true,
 		Message: "Available",
 	}
 
