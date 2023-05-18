@@ -54,34 +54,21 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 
 // Reservation renders the make a reservation page and displays form
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
-<<<<<<< HEAD
 	render.RenderTemplate(w, r, "make-reservation.gohtml", &models.TemplateData{})
-=======
-	render.RenderTemplate(w, "make-reservation.gohtml", &models.TemplateData{})
->>>>>>> 8094d222403a1136b6c99482bc2601dd5d1bf781
 }
 
 // Generals render the room page
 func (m *Repository) Generals(w http.ResponseWriter, r *http.Request) {
-<<<<<<< HEAD
 	render.RenderTemplate(w, r, "generals.gohtml", &models.TemplateData{})
-=======
-	render.RenderTemplate(w, "generals.gohtml", &models.TemplateData{})
->>>>>>> 8094d222403a1136b6c99482bc2601dd5d1bf781
 }
 
 // Majors renders the room page
 func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
-<<<<<<< HEAD
 	render.RenderTemplate(w, r, "majors.gohtml", &models.TemplateData{})
-=======
-	render.RenderTemplate(w, "majors.gohtml", &models.TemplateData{})
->>>>>>> 8094d222403a1136b6c99482bc2601dd5d1bf781
 }
 
 // Availability renders the search availability page
 func (m *Repository) Availability(w http.ResponseWriter, r *http.Request) {
-<<<<<<< HEAD
 	render.RenderTemplate(w, r, "search-availability.gohtml", &models.TemplateData{})
 }
 
@@ -91,16 +78,9 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 	end := r.Form.Get("end")
 
 	w.Write([]byte(fmt.Sprintf("start date is %s and end date is %s", start, end)))
-=======
-	render.RenderTemplate(w, "search-availability.gohtml", &models.TemplateData{})
->>>>>>> 8094d222403a1136b6c99482bc2601dd5d1bf781
 }
 
 // Contact renders the contact page
 func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
-<<<<<<< HEAD
 	render.RenderTemplate(w, r, "contact.gohtml", &models.TemplateData{})
-=======
-	render.RenderTemplate(w, "contact.gohtml", &models.TemplateData{})
->>>>>>> 8094d222403a1136b6c99482bc2601dd5d1bf781
 }
