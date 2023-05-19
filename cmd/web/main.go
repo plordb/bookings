@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/plordb/bookings/pkg/config"
-	"github.com/plordb/bookings/pkg/handlers"
-	"github.com/plordb/bookings/pkg/render"
+	"github.com/plordb/bookings/internal/config"
+	"github.com/plordb/bookings/internal/handlers"
+	"github.com/plordb/bookings/internal/render"
 )
 
-// 08-04
+// 08-06
 
 const portNumber = ":8080"
 const SessionHoras = 24

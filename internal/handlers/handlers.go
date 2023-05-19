@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/plordb/bookings/pkg/config"
-	"github.com/plordb/bookings/pkg/models"
-	"github.com/plordb/bookings/pkg/render"
+	"github.com/plordb/bookings/internal/config"
+	"github.com/plordb/bookings/internal/models"
+	"github.com/plordb/bookings/internal/render"
 )
 
 // Repo the repository used by the handlers
