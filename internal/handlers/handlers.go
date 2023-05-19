@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/plordb/bookings/internal/config"
+	"github.com/plordb/bookings/internal/forms"
 	"github.com/plordb/bookings/internal/models"
 	"github.com/plordb/bookings/internal/render"
 )
@@ -56,7 +57,14 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 
 // Reservation renders the make a reservation page and displays form
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(w, r, "make-reservation.gohtml", &models.TemplateData{})
+	render.RenderTemplate(w, r, "make-reservation.gohtml", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+// PostReservation handles the posting reservation form
+func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+
 }
 
 // Generals render the room page
