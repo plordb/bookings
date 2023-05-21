@@ -82,10 +82,10 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		Phone:     r.Form.Get("phone"),
 	}
 
-	form := forms.New(r.Form)
+	form := forms.New(r.PostForm)
 
 	form.Required("first_name", "last_name", "email")
-	form.MinLength("first_name", 3)
+	form.MinLength("first_name", 3, r)
 
 	if !form.Valid() {
 		data := make(map[string]interface{})
@@ -124,8 +124,8 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 }
 
 type jsonResponse struct {
-	OK      bool   `json: "ok"`
-	Message string `json: "message"`
+	OK      bool   `json:"ok"`
+	Message string `json:"message"`
 }
 
 // AvailabilityJSON handles request for availability and send JSON response
