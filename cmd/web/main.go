@@ -14,10 +14,9 @@ import (
 	"github.com/plordb/bookings/internal/render"
 )
 
-// 09-03
+// 09-04
 
 const portNumber = ":8080"
-const SessionHoras = 24
 
 var app config.AppConfig
 var session *scs.SessionManager
@@ -42,15 +41,13 @@ func main() {
 func run() error {
 
 	// what am I going to put in the session
-
-	// what am I going to put in the session
 	gob.Register(models.Reservation{})
 
 	// change this to true when in production
 	app.InProduction = false
 
 	session = scs.New()
-	session.Lifetime = SessionHoras * time.Hour
+	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
 	session.Cookie.SameSite = http.SameSiteLaxMode
 	session.Cookie.Secure = app.InProduction
