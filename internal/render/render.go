@@ -91,11 +91,7 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 		}
 
 		if len(matches) > 0 {
-<<<<<<< HEAD
 			ts, err = ts.ParseGlob("./templates/*.layout.gohtml")
-=======
-			ts, err = ts.ParseGlob(fmt.Sprintf("%s/*.layout.gohtml", pathToTemplates))
->>>>>>> 6ddd9c531da3862265ba07e495d2045c5db75992
 			if err != nil {
 				return myCache, err
 			}
