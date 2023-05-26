@@ -2,16 +2,10 @@ package forms
 
 import (
 	"fmt"
-<<<<<<< HEAD
-	"net/http"
-	"net/url"
-	"strings"
-=======
 	"net/url"
 	"strings"
 
 	"github.com/asaskevich/govalidator"
->>>>>>> 6ddd9c531da3862265ba07e495d2045c5db75992
 )
 
 // Form creates a custom form struct, embeds a url.Values object
@@ -47,21 +41,6 @@ func (f *Form) Required(fields ...string) {
 func (f *Form) Has(field string) bool {
 	x := f.Get(field)
 	if x == "" {
-<<<<<<< HEAD
-		return false
-	}
-
-	return true
-}
-
-// MinLength checks for string minimum length
-func (f *Form) MinLength(field string, length int) bool {
-	x := f.Get(field)
-	if len(x) < length {
-		f.Errors.Add(field, fmt.Sprintf("This field must be at least %d characteres long", length))
-
-=======
->>>>>>> 6ddd9c531da3862265ba07e495d2045c5db75992
 		return false
 	}
 

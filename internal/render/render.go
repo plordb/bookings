@@ -70,12 +70,8 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, gohtml string, td *m
 func CreateTemplateCache() (map[string]*template.Template, error) {
 
 	myCache := map[string]*template.Template{}
-
-<<<<<<< HEAD
 	pages, err := filepath.Glob("./templates/*.gohtml")
-=======
-	pages, err := filepath.Glob(fmt.Sprintf("%s/*.gohtml", pathToTemplates))
->>>>>>> 6ddd9c531da3862265ba07e495d2045c5db75992
+
 	if err != nil {
 		return myCache, err
 	}
@@ -89,11 +85,7 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 			return myCache, err
 		}
 
-<<<<<<< HEAD
 		matches, err := filepath.Glob("./templates/*.layout.gohtml")
-=======
-		matches, err := filepath.Glob(fmt.Sprintf("%s/*.layout.gohtml", pathToTemplates))
->>>>>>> 6ddd9c531da3862265ba07e495d2045c5db75992
 		if err != nil {
 			return myCache, err
 		}
