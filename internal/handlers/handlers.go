@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/plordb/bookings/internal/config"
 	"github.com/plordb/bookings/internal/forms"
+	"github.com/plordb/bookings/internal/helpers"
 	"github.com/plordb/bookings/internal/models"
 	"github.com/plordb/bookings/internal/render"
 )
@@ -33,26 +35,13 @@ func NewHandlers(r *Repository) {
 }
 
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	remoteIP := r.RemoteAddr
-	m.App.Session.Put(r.Context(), "remote_ip", remoteIP)
-
 	render.RenderTemplate(w, r, "home.gohtml", &models.TemplateData{})
 }
 
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 
-	// performs some logic
-	stringMap := make(map[string]string)
-	stringMap["test"] = "Hola, otra vez."
-
-	remoteIP := m.App.Session.GetString(r.Context(), "remote_ip")
-
-	stringMap["remote_ip"] = remoteIP
-
 	// send the data to the template
-	render.RenderTemplate(w, r, "about.gohtml", &models.TemplateData{
-		StringMap: stringMap,
-	})
+	render.RenderTemplate(w, r, "about.gohtml", &models.TemplateData{})
 }
 
 // Reservation renders the make a reservation page and displays form
@@ -70,8 +59,10 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 // PostReservation handles the posting reservation form
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
+	err = errors.New("this is an error message")
 	if err != nil {
-		log.Println(err)
+		helpers.ServerError(w, err)
+
 		return
 	}
 
@@ -82,10 +73,9 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		Phone:     r.Form.Get("phone"),
 	}
 
-	form := forms.New(r.Form)
+	form := forms.New(r.PostForm)
 
-	form.Required("first_name", "last_name", "email")
-	form.MinLength("first_name", 3)
+	form.Has("first_name", r)
 
 	if !form.Valid() {
 		data := make(map[string]interface{})
@@ -98,6 +88,11 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	m.App.Session.Put(r.Context(), "reservation", reservation)
+
+	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
+
 }
 
 // Generals render the room page
@@ -124,8 +119,8 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 }
 
 type jsonResponse struct {
-	OK      bool   `json: "ok"`
-	Message string `json: "message"`
+	OK      bool   `json:"ok"`
+	Message string `json:"message"`
 }
 
 // AvailabilityJSON handles request for availability and send JSON response
@@ -137,7 +132,9 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 
 	out, err := json.MarshalIndent(resp, "", "    ")
 	if err != nil {
-		log.Println(err)
+		helpers.ServerError(w, err)
+
+		return
 	}
 
 	log.Println(string(out))
@@ -149,4 +146,24 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 // Contact renders the contact page
 func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, r, "contact.gohtml", &models.TemplateData{})
+}
+
+func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) {
+	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	if !ok {
+		m.App.ErrorLog.Println("Can't get error from session")
+		m.App.Session.Put(r.Context(), "error", "Can't get reservation from session")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+
+		return
+	}
+
+	m.App.Session.Remove(r.Context(), "reservation")
+
+	data := make(map[string]interface{})
+	data["reservation"] = reservation
+
+	render.RenderTemplate(w, r, "reservation-summary.gohtml", &models.TemplateData{
+		Data: data,
+	})
 }

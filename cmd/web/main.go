@@ -1,32 +1,68 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/plordb/bookings/internal/config"
 	"github.com/plordb/bookings/internal/handlers"
+	"github.com/plordb/bookings/internal/helpers"
+	"github.com/plordb/bookings/internal/models"
 	"github.com/plordb/bookings/internal/render"
 )
 
+<<<<<<< HEAD
 // 08-09
+=======
+// 10-03
+>>>>>>> 6ddd9c531da3862265ba07e495d2045c5db75992
 
 const portNumber = ":8080"
-const SessionHoras = 24
 
 var app config.AppConfig
 var session *scs.SessionManager
+var infoLog *log.Logger
+var errorLog *log.Logger
 
 func main() {
+	err := run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(fmt.Sprintf("Starting application on port #{portNumber}"))
+
+	srv := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+
+	err = srv.ListenAndServe()
+	log.Fatal(err)
+}
+
+func run() error {
+
+	// what am I going to put in the session
+	gob.Register(models.Reservation{})
 
 	// change this to true when in production
 	app.InProduction = false
 
+	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.InfoLog = infoLog
+
+	errorLog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errorLog
+
 	session = scs.New()
-	session.Lifetime = SessionHoras * time.Hour
+
+	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
 	session.Cookie.SameSite = http.SameSiteLaxMode
 	session.Cookie.Secure = app.InProduction
@@ -36,6 +72,8 @@ func main() {
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")
+
+		return err
 	}
 
 	app.TemplateCache = tc
@@ -43,16 +81,10 @@ func main() {
 
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
-
 	render.NewTemplates(&app)
+	helpers.NewHelpers(&app)
 
-	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
+	//fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
 
-	srv := &http.Server{
-		Addr:    portNumber,
-		Handler: routes(&app),
-	}
-
-	err = srv.ListenAndServe()
-	log.Fatal(err)
+	return nil
 }
