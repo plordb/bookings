@@ -1,10 +1,10 @@
 mode: set
-github.com/plordb/bookings/cmd/web/main.go:25.13,27.16 2 0
-github.com/plordb/bookings/cmd/web/main.go:27.16,29.3 1 0
-github.com/plordb/bookings/cmd/web/main.go:31.2,39.16 4 0
-github.com/plordb/bookings/cmd/web/main.go:42.18,61.16 10 1
-github.com/plordb/bookings/cmd/web/main.go:61.16,65.3 2 0
-github.com/plordb/bookings/cmd/web/main.go:67.2,77.12 7 1
+github.com/plordb/bookings/cmd/web/main.go:28.13,30.16 2 0
+github.com/plordb/bookings/cmd/web/main.go:30.16,32.3 1 0
+github.com/plordb/bookings/cmd/web/main.go:34.2,42.16 4 0
+github.com/plordb/bookings/cmd/web/main.go:45.18,69.16 14 1
+github.com/plordb/bookings/cmd/web/main.go:69.16,73.3 2 0
+github.com/plordb/bookings/cmd/web/main.go:75.2,85.12 7 1
 github.com/plordb/bookings/cmd/web/middleware.go:10.45,21.2 3 1
 github.com/plordb/bookings/cmd/web/middleware.go:24.50,27.2 1 1
 github.com/plordb/bookings/cmd/web/routes.go:12.49,39.2 18 1
