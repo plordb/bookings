@@ -1,0 +1,1 @@
+drop_freign_key("reservations", "reservations_rooms_id_fk", {})
