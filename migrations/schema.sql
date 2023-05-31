@@ -324,6 +324,7 @@ ALTER TABLE ONLY public.reservations
 
 
 --
+<<<<<<< HEAD
 -- Name: room_restrictions room_restrictions_restrictions_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -340,6 +341,8 @@ ALTER TABLE ONLY public.room_restrictions
 
 
 --
+=======
+>>>>>>> 397c749309d3b898bfb1eb6597c416ac2aec5046
 -- PostgreSQL database dump complete
 --
 
