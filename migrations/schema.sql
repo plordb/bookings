@@ -309,6 +309,7 @@ ALTER TABLE ONLY public.users
 
 
 --
+<<<<<<< HEAD
 -- Name: reservations_email_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -323,6 +324,8 @@ CREATE INDEX reservations_last_name_idx ON public.reservations USING btree (last
 
 
 --
+=======
+>>>>>>> 14138c7652d3559d4462b9de1c246f324311e9d8
 -- Name: room_restrictions_reservation_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -366,6 +369,7 @@ ALTER TABLE ONLY public.reservations
 
 
 --
+<<<<<<< HEAD
 -- Name: room_restrictions room_restrictions_reservations_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -374,6 +378,8 @@ ALTER TABLE ONLY public.room_restrictions
 
 
 --
+=======
+>>>>>>> 14138c7652d3559d4462b9de1c246f324311e9d8
 -- Name: room_restrictions room_restrictions_restrictions_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
