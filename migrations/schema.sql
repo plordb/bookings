@@ -29,7 +29,7 @@ CREATE TABLE public.reservations (
     first_name character varying(255) DEFAULT ''::character varying NOT NULL,
     last_name character varying(255) DEFAULT ''::character varying NOT NULL,
     email character varying(255) NOT NULL,
-    phone character varying(255) NOT NULL,
+    phone character varying(255) DEFAULT ''::character varying NOT NULL,
     start_date date NOT NULL,
     end_date date NOT NULL,
     room_id integer NOT NULL,
@@ -309,10 +309,52 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: reservations_email_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX reservations_email_idx ON public.reservations USING btree (email);
+
+
+--
+-- Name: reservations_last_name_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX reservations_last_name_idx ON public.reservations USING btree (last_name);
+
+
+--
+-- Name: room_restrictions_reservation_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX room_restrictions_reservation_id_idx ON public.room_restrictions USING btree (reservation_id);
+
+
+--
+-- Name: room_restrictions_room_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX room_restrictions_room_id_idx ON public.room_restrictions USING btree (room_id);
+
+
+--
+-- Name: room_restrictions_start_date_end_date_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX room_restrictions_start_date_end_date_idx ON public.room_restrictions USING btree (start_date, end_date);
+
+
+--
 -- Name: schema_migration_version_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX schema_migration_version_idx ON public.schema_migration USING btree (version);
+
+
+--
+-- Name: users_email_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX users_email_idx ON public.users USING btree (email);
 
 
 --
@@ -324,7 +366,14 @@ ALTER TABLE ONLY public.reservations
 
 
 --
-<<<<<<< HEAD
+-- Name: room_restrictions room_restrictions_reservations_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.room_restrictions
+    ADD CONSTRAINT room_restrictions_reservations_id_fk FOREIGN KEY (reservation_id) REFERENCES public.reservations(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: room_restrictions room_restrictions_restrictions_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -341,8 +390,6 @@ ALTER TABLE ONLY public.room_restrictions
 
 
 --
-=======
->>>>>>> 397c749309d3b898bfb1eb6597c416ac2aec5046
 -- PostgreSQL database dump complete
 --
 
