@@ -92,7 +92,7 @@ func run() (*driver.DB, error) {
 	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
 	render.NewRenderer(&app)
-	helpers.NewHelpers(&app)
+	helpers.NewHelpers(&app, nil, nil)
 
 	//fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
 
