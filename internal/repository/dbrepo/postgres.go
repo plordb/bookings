@@ -16,7 +16,9 @@ func (m *postgresDBRepo) AllUsers() bool {
 func (m *postgresDBRepo) InsertReservation(res models.Reservation) (int, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
 	defer cancel()
+
 	var newID int
 
 	stmt := `insert into reservation(first_nname, last_name,  email, phone, start_date, end_date, room_id, created_at, update_at)
@@ -35,6 +37,7 @@ func (m *postgresDBRepo) InsertReservation(res models.Reservation) (int, error) 
 	)
 
 	if err != nil {
+
 		return 0, err
 	}
 

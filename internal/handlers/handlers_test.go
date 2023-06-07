@@ -30,11 +30,11 @@ var theTests = []struct {
 		{key: "start", value: "2023-05-01"},
 		{key: "end", value: "2023-05-02"},
 	}, http.StatusOK},
-	{"post-search-availability-json", "/search-availability-json", "POST", []postData{
+	{"post-search-avail-json", "/search-availability-json", "POST", []postData{
 		{key: "start", value: "2023-05-01"},
 		{key: "end", value: "2023-05-02"},
 	}, http.StatusOK},
-	{"make-reservation", "/make-reservation", "POST", []postData{
+	{"make reservation post", "/make-reservation", "POST", []postData{
 		{key: "first_name", value: "Pablo"},
 		{key: "last_name", value: "Lorenzo"},
 		{key: "email", value: "me@here.com"},
@@ -45,7 +45,6 @@ var theTests = []struct {
 func TestHandlers(t *testing.T) {
 
 	routes := getRoutes()
-    
 	ts := httptest.NewTLSServer(routes)
 	defer ts.Close()
 

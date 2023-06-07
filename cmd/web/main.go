@@ -10,14 +10,13 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/plordb/bookings/internal/config"
-	"github.com/plordb/bookings/internal/driver"
 	"github.com/plordb/bookings/internal/handlers"
 	"github.com/plordb/bookings/internal/helpers"
 	"github.com/plordb/bookings/internal/models"
 	"github.com/plordb/bookings/internal/render"
 )
 
-// 13-05
+// 13-02
 
 const portNumber = ":8080"
 
@@ -27,13 +26,12 @@ var infoLog *log.Logger
 var errorLog *log.Logger
 
 func main() {
-	db, err := run()
+	err := run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.SQL.Close()
 
-	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
+	fmt.Println(fmt.Sprintf("Starting application on port #{portNumber}"))
 
 	srv := &http.Server{
 		Addr:    portNumber,
@@ -44,13 +42,10 @@ func main() {
 	log.Fatal(err)
 }
 
-func run() (*driver.DB, error) {
+func run() error {
 
 	// what am I going to put in the session
 	gob.Register(models.Reservation{})
-	gob.Register(models.User{})
-	gob.Register(models.Room{})
-	gob.Register(models.Restriction{})
 
 	// change this to true when in production
 	app.InProduction = false
@@ -70,31 +65,22 @@ func run() (*driver.DB, error) {
 
 	app.Session = session
 
-	// connect to database
-	log.Println("Connecting to database...")
-	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=postgres password=abc12345. sslmode=disable")
-	if err != nil {
-		log.Fatal("Cannot connect to database! Dying...")
-	}
-
-	log.Println("Connected to database")
-
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")
 
-		return nil, err
+		return err
 	}
 
 	app.TemplateCache = tc
 	app.UseCache = false
 
-	repo := handlers.NewRepo(&app, db)
+	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
-	render.NewRenderer(&app)
-	helpers.NewHelpers(&app, nil, nil)
+	render.NewTemplates(&app)
+	helpers.NewHelpers(&app)
 
 	//fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
 
-	return db, nil
+	return nil
 }
