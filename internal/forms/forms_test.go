@@ -8,10 +8,12 @@ import (
 )
 
 func TestForm_Valid(t *testing.T) {
-	request := httptest.NewRequest("POST", "/goobar", nil)
-	form := New(request.PostForm)
-	if !form.Valid() {
-		t.Error("Empty form should be Valid")
+	r := httptest.NewRequest("POST", "/whatever", nil)
+	form := New(r.PostForm)
+
+	isValid := form.Valid()
+	if !isValid {
+		t.Error("got invalid when should have been valid")
 	}
 }
 
@@ -30,8 +32,8 @@ func TestForm_Required(t *testing.T) {
 	postedData.Add("c", "a")
 
 	r, _ = http.NewRequest("POST", "/whatever", nil)
-	r.PostForm = postedData
 
+	r.PostForm = postedData
 	form = New(r.PostForm)
 	form.Required("a", "b", "c")
 	if !form.Valid() {
@@ -41,10 +43,11 @@ func TestForm_Required(t *testing.T) {
 
 func TestForm_Has(t *testing.T) {
 
-	values := url.Values{}
-	form := New(values)
+	r := httptest.NewRequest("POST", "/whatever", nil)
+	form := New(r.PostForm)
 
-	if form.Has("whatever") {
+	has := form.Has("whatever")
+	if has {
 		t.Error("(form:51) form shows has field when it does not")
 	}
 
@@ -53,7 +56,7 @@ func TestForm_Has(t *testing.T) {
 	postedData.Add("a", "a")
 	form = New(postedData)
 
-	has := form.Has("a")
+	has = form.Has("a")
 	if !has {
 		t.Error("shows form dows not have field when it should")
 	}
@@ -61,12 +64,17 @@ func TestForm_Has(t *testing.T) {
 
 func TestForm_MinLength(t *testing.T) {
 
-	values := url.Values{}
-	form := New(values)
+	r := httptest.NewRequest("POST", "/whatever", nil)
+	form := New(r.PostForm)
 
-	// We have not added any items to the form data, so minlegth should fail.
-	if form.MinLength("afield", 3) {
-		t.Error("MinLegth detected and passed a field when it should not")
+	form.MinLength("x", 10)
+	if form.Valid() {
+		t.Error("form shows min length for non-existent field")
+	}
+
+	isError := form.Errors.Get("x")
+	if isError == "" {
+		t.Error("should have an error, but did not get error")
 	}
 
 	postedValues := url.Values{}
@@ -87,7 +95,7 @@ func TestForm_MinLength(t *testing.T) {
 		t.Error("shows minlength of 1 is not met when it is")
 	}
 
-	isError := form.Errors.Get("another_field")
+	isError = form.Errors.Get("another_field")
 	if isError != "" {
 		t.Error("should not have an error, but got one")
 	}
@@ -95,16 +103,15 @@ func TestForm_MinLength(t *testing.T) {
 
 func TestForm_IsEmail(t *testing.T) {
 
-	request := httptest.NewRequest("POST", "/goobar", nil)
-	form := New(request.PostForm)
+	postedValues := url.Values{}
+	form := New(postedValues)
 
-	// We have not added any items to the form data, so minlegth should fail.
-	form.IsEmail("email")
+	form.IsEmail("x")
 	if form.Valid() {
-		t.Error("email to isEmail detected and passed a field when it should not")
+		t.Error("form show valid email for non-existent field")
 	}
 
-	postedValues := url.Values{}
+	postedValues = url.Values{}
 	postedValues.Add("email", "me@here.com")
 	form = New(postedValues)
 

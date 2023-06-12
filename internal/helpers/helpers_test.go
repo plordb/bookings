@@ -48,7 +48,7 @@ func TestDefaultLoggers(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	runLogFunc := func() {
 		appObj := config.AppConfig{}
-		NewHelpers(&appObj, nil, nil)
+		NewHelpers(&appObj)
 		ClientError(recorder, 400)
 	}
 	out := captureStdOut(runLogFunc, false)
@@ -70,7 +70,7 @@ func TestSubstituteBufferForLog(t *testing.T) {
 	buf := new(bytes.Buffer)
 	recorder := httptest.NewRecorder()
 	appObj := config.AppConfig{}
-	NewHelpers(&appObj, buf, nil)
+	NewHelpers(&appObj)
 	ClientError(recorder, 400)
 	rslt := buf.String()
 	if !strings.Contains(rslt, "INFO") {
@@ -83,7 +83,7 @@ func TestDefaultErrorLog(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	runLogFunc := func() {
 		appObj := config.AppConfig{}
-		NewHelpers(&appObj, nil, nil)
+		NewHelpers(&appObj)
 		err := errors.New(custErr)
 		ServerError(recorder, err)
 	}
@@ -110,7 +110,7 @@ func TestSubstituteBufferForErrors(t *testing.T) {
 	buf := new(bytes.Buffer)
 	recorder := httptest.NewRecorder()
 	appObj := config.AppConfig{}
-	NewHelpers(&appObj, nil, buf)
+	NewHelpers(&appObj)
 	errTxt := "we go boom"
 	err := errors.New(errTxt)
 	ServerError(recorder, err)

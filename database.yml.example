@@ -3,7 +3,7 @@ development:
   database: bookings
   user: 
   password: 
-  host: localhost
+  host: 127.0.0.1
   pool: 5
 
 test:

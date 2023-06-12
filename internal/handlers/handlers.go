@@ -1,22 +1,17 @@
 package handlers
 
 import (
-	//"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/plordb/bookings/internal/config"
-	"github.com/plordb/bookings/internal/driver"
 	"github.com/plordb/bookings/internal/forms"
 	"github.com/plordb/bookings/internal/helpers"
 	"github.com/plordb/bookings/internal/models"
 	"github.com/plordb/bookings/internal/render"
-	"github.com/plordb/bookings/internal/repository"
-	"github.com/plordb/bookings/internal/repository/dbrepo"
 )
 
 // Repo the repository used by the handlers
@@ -25,14 +20,12 @@ var Repo *Repository
 // Repository is the repository type
 type Repository struct {
 	App *config.AppConfig
-	DB  repository.DatabaseRepo
 }
 
 // NewRepo creates a new repository
-func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
+func NewRepo(a *config.AppConfig) *Repository {
 	return &Repository{
 		App: a,
-		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 
@@ -42,13 +35,13 @@ func NewHandlers(r *Repository) {
 }
 
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "home.gohtml", &models.TemplateData{})
+	render.RenderTemplate(w, r, "home.gohtml", &models.TemplateData{})
 }
 
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 
 	// send the data to the template
-	render.Template(w, r, "about.gohtml", &models.TemplateData{})
+	render.RenderTemplate(w, r, "about.gohtml", &models.TemplateData{})
 }
 
 // Reservation renders the make a reservation page and displays form
@@ -57,7 +50,7 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 	data := make(map[string]interface{})
 	data["reservation"] = emptyReservation
 
-	render.Template(w, r, "make-reservation.gohtml", &models.TemplateData{
+	render.RenderTemplate(w, r, "make-reservation.gohtml", &models.TemplateData{
 		Form: forms.New(nil),
 		Data: data,
 	})
@@ -66,43 +59,18 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 // PostReservation handles the posting reservation form
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
-
+	err = errors.New("this is an error message")
 	if err != nil {
 		helpers.ServerError(w, err)
 
 		return
 	}
 
-	sd := r.Form.Get("start_date")
-	ed := r.Form.Get("end_date")
-
-	// 2023-06-04  -- 01/02 03:04:05PM '06 0700
-
-	layout := "2006-01-02"
-
-	startDate, err := time.Parse(layout, sd)
-	if err != nil {
-		helpers.ServerError(w, err)
-	}
-
-	endDate, err := time.Parse(layout, ed)
-	if err != nil {
-		helpers.ServerError(w, err)
-	}
-
-	roomID, err := strconv.Atoi(r.Form.Get("room_id"))
-	if err != nil {
-		helpers.ServerError(w, err)
-	}
-
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
-		Phone:     r.Form.Get("phone"),
 		Email:     r.Form.Get("email"),
-		StartDate: startDate,
-		EndDate:   endDate,
-		RoomID:    roomID,
+		Phone:     r.Form.Get("phone"),
 	}
 
 	form := forms.New(r.PostForm)
@@ -115,38 +83,13 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		data := make(map[string]interface{})
 		data["reservation"] = reservation
 
-		render.Template(w, r, "make-reservation.gohtml", &models.TemplateData{
+		render.RenderTemplate(w, r, "make-reservation.gohtml", &models.TemplateData{
 			Form: form,
 			Data: data,
 		})
 
 		return
 	}
-
-	newID, err := m.DB.InsertReservation(reservation)
-	if err != nil {
-		helpers.ServerError(w, err)
-	}
-
-	reservation.ID = newID
-
-	/*
-		restriction := models.RoomRestriction{
-			StartDate:     reservation.StartDate,
-			EndDate:       reservation.EndDate,
-			RoomID:        reservation.RoomID,
-			ReservationID: reservation.ID,
-			RestrictionID: 1, // temp
-			CreatedAt:     time.Now(),
-			UpdatedAt:     time.Now(),
-		}
-
-		roomRestrictID, err := m.DB.InsertRoomRestriction(restriction)
-		if err != nil {
-			helpers.ServerError(w, err)
-		}
-		log.Printf("RRID = %d", roomRestrictID)
-	*/
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 
@@ -156,17 +99,17 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 // Generals render the room page
 func (m *Repository) Generals(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "generals.gohtml", &models.TemplateData{})
+	render.RenderTemplate(w, r, "generals.gohtml", &models.TemplateData{})
 }
 
 // Majors renders the room page
 func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "majors.gohtml", &models.TemplateData{})
+	render.RenderTemplate(w, r, "majors.gohtml", &models.TemplateData{})
 }
 
 // Availability renders the search availability page
 func (m *Repository) Availability(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "search-availability.gohtml", &models.TemplateData{})
+	render.RenderTemplate(w, r, "search-availability.gohtml", &models.TemplateData{})
 }
 
 // PostAvailability renders the search availability page
@@ -204,7 +147,7 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 
 // Contact renders the contact page
 func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
-	render.Template(w, r, "contact.gohtml", &models.TemplateData{})
+	render.RenderTemplate(w, r, "contact.gohtml", &models.TemplateData{})
 }
 
 func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) {
@@ -217,15 +160,13 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	helpers.PrintStruct(reservation)
-
 	m.App.Session.Remove(r.Context(), "reservation")
 
 	data := make(map[string]interface{})
 
 	data["reservation"] = reservation
 
-	render.Template(w, r, "reservation-summary.gohtml", &models.TemplateData{
+	render.RenderTemplate(w, r, "reservation-summary.gohtml", &models.TemplateData{
 		Data: data,
 	})
 }
