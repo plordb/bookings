@@ -5,6 +5,7 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 // DB holds the database connection pool
@@ -40,17 +41,6 @@ func ConnectSQL(dsn string) (*DB, error) {
 	return dbConn, nil
 }
 
-// testDB  tries to ping the database
-func testDB(d *sql.DB) error {
-	err := d.Ping()
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // NewDatabase creates a new database for the application
 func NewDatabase(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("pgx", dsn)
@@ -63,4 +53,15 @@ func NewDatabase(dsn string) (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+// testDB  tries to ping the database
+func testDB(d *sql.DB) error {
+	err := d.Ping()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
