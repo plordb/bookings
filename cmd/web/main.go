@@ -16,7 +16,7 @@ import (
 	"github.com/plordb/bookings/internal/render"
 )
 
-// 12-06
+// 12-07
 
 const portNumber = ":8080"
 
@@ -31,7 +31,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(fmt.Sprintf("Starting application on port #{portNumber}"))
+	fmt.Printf("Starting application on port %s", portNumber)
 
 	srv := &http.Server{
 		Addr:    portNumber,
