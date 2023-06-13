@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/plordb/bookings/internal/config"
 	"github.com/plordb/bookings/internal/driver"
@@ -64,19 +65,44 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 
 // PostReservation handles the posting reservation form
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
+
 	err := r.ParseForm()
-	err = errors.New("this is an error message")
+	//err = errors.New("this is an error message")
 	if err != nil {
 		helpers.ServerError(w, err)
 
 		return
 	}
 
+	sd := r.Form.Get("start_date")
+	ed := r.Form.Get("end_date")
+
+	// 2023-01-01 -- 01/02 03:04:05PM '96 -0700
+
+	layout := "2006-01-02"
+	startDate, err := time.Parse(layout, sd)
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	endDate, err := time.Parse(layout, ed)
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
+	roomId, err := strconv.Atoi(r.Form.Get("room_id"))
+	if err != nil {
+		helpers.ServerError(w, err)
+	}
+
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
-		Email:     r.Form.Get("email"),
 		Phone:     r.Form.Get("phone"),
+		Email:     r.Form.Get("email"),
+		StartDate: startDate,
+		EndDate:   endDate,
+		RoomID:    roomId,
 	}
 
 	form := forms.New(r.PostForm)
@@ -93,6 +119,28 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 			Form: form,
 			Data: data,
 		})
+
+		return
+	}
+
+	newReservationID, err := m.DB.InsertReservation(reservation)
+	if err != nil {
+		helpers.ServerError(w, err)
+
+		return
+	}
+
+	restriction := models.RoomRestriction{
+		StartDate:     startDate,
+		EndDate:       endDate,
+		RoomID:        roomId,
+		ReservationID: newReservationID,
+		RestrictionID: 1,
+	}
+
+	err = m.DB.InsertRoomRestriction(restriction)
+	if err != nil {
+		helpers.ServerError(w, err)
 
 		return
 	}
