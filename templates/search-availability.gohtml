@@ -2,23 +2,20 @@
 
 {{define "content"}}
     <div class="container">
-
         <style>
             .ajuste {
-                height: 180px;
+                margin-top: 100px;
             }
         </style>
-        
-        <div class="row">
-            <div class="ajuste col-md-12 col-lg-12 col-sm-12 col-xs-12"></div> 
-        </div>
 
-        <div class="row">
+        <div class="row ajuste">
             <div class="col-md-3"></div>
             <div class="col-md-6">
-                <h1 class="mt-5">Search for Availability</h1>
+                <h3 class="mt-5">
+                    <strong>Search for Availability</strong>
+                </h3>
                 <hr>
-
+                <hr>
 
                 <form action="/search-availability" method="post" novalidate class="needs-validation">
                     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
@@ -54,7 +51,7 @@
         const rangePicker = new DateRangePicker(elem, {
             format: "yyyy-mm-dd",
             minDate: new Date(),
-            drops: 'auto',
+            drops: 'bottom',
         });
     </script>
 {{end}}
