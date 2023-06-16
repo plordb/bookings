@@ -1,10 +1,11 @@
 {{template "base" .}}
 
 {{define "content"}}
+
     <div class="container">
         <style>
             .ajuste {
-                margin-top: 100px;
+                margin-top: 135px;
             }
         </style>
 
@@ -14,7 +15,6 @@
                 <h3 class="mt-5">
                     <strong>Search for Availability</strong>
                 </h3>
-                <hr>
                 <hr>
 
                 <form action="/search-availability" method="post" novalidate class="needs-validation">
@@ -51,7 +51,7 @@
         const rangePicker = new DateRangePicker(elem, {
             format: "yyyy-mm-dd",
             minDate: new Date(),
-            drops: 'bottom',
+            orientation: 'left, bottom',
         });
     </script>
 {{end}}
