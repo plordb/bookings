@@ -18,7 +18,7 @@ import (
 	"github.com/plordb/bookings/internal/render"
 )
 
-// 13-16(01:05)
+// 13-16
 
 const portNumber = ":8080"
 
