@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
 	session.Cookie.SameSite = http.SameSiteLaxMode
-	session.Cookie.Secure = false
+	session.Cookie.Secure = app.InProduction
 
 	testApp.Session = session
 

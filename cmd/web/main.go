@@ -18,7 +18,7 @@ import (
 	"github.com/plordb/bookings/internal/render"
 )
 
-// 13-19
+// 15-05
 
 const portNumber = ":8080"
 
@@ -34,7 +34,13 @@ func main() {
 	}
 	defer db.SQL.Close()
 
-	fmt.Printf("(main.go: 37): Starting application on port %s\n\n", portNumber)
+	defer close(app.MailChan)
+
+	fmt.Println("Starting mail listener...")
+
+	listenForMail()
+
+	fmt.Printf("(main.go: 52): Starting application on port %s\n\n", portNumber)
 
 	srv := &http.Server{
 		Addr:    portNumber,
@@ -53,6 +59,9 @@ func run() (*driver.DB, error) {
 	gob.Register(models.Room{})
 	gob.Register(models.Restriction{})
 
+	mailChan := make(chan models.MailData)
+	app.MailChan = mailChan
+
 	// change this to true when in production
 	app.InProduction = false
 
@@ -63,7 +72,6 @@ func run() (*driver.DB, error) {
 	app.ErrorLog = errorLog
 
 	session = scs.New()
-
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
 	session.Cookie.SameSite = http.SameSiteLaxMode

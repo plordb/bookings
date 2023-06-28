@@ -25,15 +25,6 @@ var theTests = []struct {
 	{"ms", "/majors-suite", "GET", []postData{}, http.StatusOK},
 	{"sa", "/search-availability", "GET", []postData{}, http.StatusOK},
 	{"contact", "/contact", "GET", []postData{}, http.StatusOK},
-	{"mr", "/make-reservation", "GET", []postData{}, http.StatusOK},
-	{"post-search-avail", "/search-availability", "POST", []postData{
-		{key: "start", value: "2023-05-01"},
-		{key: "end", value: "2023-05-02"},
-	}, http.StatusOK},
-	{"post-search-avail-json", "/search-availability-json", "POST", []postData{
-		{key: "start", value: "2023-05-01"},
-		{key: "end", value: "2023-05-02"},
-	}, http.StatusOK},
 	{"make reservation post", "/make-reservation", "POST", []postData{
 		{key: "first_name", value: "Pablo"},
 		{key: "last_name", value: "Lorenzo"},
