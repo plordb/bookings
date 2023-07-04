@@ -1,5 +1,6 @@
 main
 subo.sh
 test.sh
+testfunc.sh
 html-source/
 database.yml

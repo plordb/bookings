@@ -28,8 +28,11 @@ func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateDa
 	td.Flash = app.Session.PopString(r.Context(), "flash")
 	td.Error = app.Session.PopString(r.Context(), "error")
 	td.Warning = app.Session.PopString(r.Context(), "warning")
-
 	td.CSRFToken = nosurf.Token(r)
+	if app.Session.Exists(r.Context(), "user_id") {
+		td.IsAuthenticated = 1
+	}
+
 	return td
 }
 
@@ -70,7 +73,8 @@ func Template(w http.ResponseWriter, r *http.Request, gohtml string, td *models.
 func CreateTemplateCache() (map[string]*template.Template, error) {
 
 	myCache := map[string]*template.Template{}
-	pages, err := filepath.Glob("./templates/*.gohtml")
+
+	pages, err := filepath.Glob(fmt.Sprintf("%s/*.gohtml", pathToTemplates))
 
 	if err != nil {
 		return myCache, err

@@ -23,6 +23,7 @@ var theTests = []struct {
 	{"about", "/about", "GET", []postData{}, http.StatusOK},
 	{"gq", "/generals-quarter", "GET", []postData{}, http.StatusOK},
 	{"ms", "/majors-suite", "GET", []postData{}, http.StatusOK},
+
 	{"sa", "/search-availability", "GET", []postData{}, http.StatusOK},
 	{"contact", "/contact", "GET", []postData{}, http.StatusOK},
 	{"make reservation post", "/make-reservation", "POST", []postData{
