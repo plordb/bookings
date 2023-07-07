@@ -2,10 +2,17 @@
 
 {{define "css"}}
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+    <style>
+    .spelling-error {
+        text-decoration-line: underline;
+        text-decoration-style: wavy;
+        text-decoration-color: red;
+    }
+    </style>
 {{end}}
 
 {{define "page-title"}}
-    All Reservations
+    <u class="spelling-error">All Reservations</u>
 {{end}}
 
 {{define "content"}}
@@ -46,7 +53,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function(){
             const dataTable = new simpleDatatables.DataTable("#all-res", {
-                select: 3, sort: "desc",
+                select: 3, sort: "asc",
             })
         })
     </script>

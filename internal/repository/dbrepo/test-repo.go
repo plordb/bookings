@@ -190,4 +190,21 @@ func (m *testDBRepo) InsertBlockForRoom(id int, startDate time.Time) error {
 func (m *testDBRepo) DeleteBlockByID(id int) error {
 	return nil
 }
+
+// AllReservations returns a slice for all reservations
+func (m *testDBRepo) AllReservations() ([]models.Reservation, error) {
+
+	var reservations []models.Reservation
+
+	return reservations, nil
+}
+
+// AllNewReservations returns a slice for all new reservations
+func (m *testDBRepo) AllNewReservations() ([]models.Reservation, error) {
+
+	var reservations []models.Reservation
+
+	return reservations, nil
+}
+
 */
