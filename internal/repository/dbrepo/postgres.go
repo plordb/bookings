@@ -23,8 +23,11 @@ func (m *postgresDBRepo) InsertReservation(res models.Reservation) (int, error) 
 
 	var newID int
 
-	stmt := `insert into reservations(first_name, last_name, email, phone, start_date, end_date, room_id, created_at, updated_at)
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id`
+	stmt := `insert into reservations(
+				first_name, last_name, email
+				, phone, start_date, end_date
+				, room_id, created_at, updated_at)
+				VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id`
 
 	err := m.DB.QueryRowContext(ctx, stmt,
 		res.FirstName,
@@ -53,8 +56,11 @@ func (m *postgresDBRepo) InsertRoomRestriction(r models.RoomRestriction) error {
 
 	defer cancel()
 
-	stmt := `insert into room_restrictions (start_date, end_date, room_id, reservation_id, created_at, updated_at, restriction_id)
-	values($1, $2, $3, $4, $5, $6, $7)`
+	stmt := `insert into room_restrictions (
+			    start_date, end_date, room_id
+			  , reservation_id, created_at
+			  , updated_at, restriction_id)
+			  values($1, $2, $3, $4, $5, $6, $7);`
 
 	_, err := m.DB.ExecContext(ctx, stmt,
 		r.StartDate,
@@ -110,14 +116,15 @@ func (m *postgresDBRepo) SearchAvailabilityForAllRooms(start time.Time, end time
 
 	var rooms []models.Room
 
-	query := `
-		select
-			r.id, r.room_name
-		from
-			rooms r
-		where r.id not in 
-		(select room_id from room_restrictions rr where $1 < rr.end_date and $2 > rr.start_date);
-		`
+	query := `select
+				r.id, r.room_name
+			  from rooms r
+			  where r.id not in(
+				select room_id 
+				  from room_restrictions rr 
+				where $1 < rr.end_date 
+				  and $2 > rr.start_date
+				  );`
 
 	rows, err := m.DB.QueryContext(ctx, query, start, end)
 	if err != nil {
@@ -152,7 +159,9 @@ func (m *postgresDBRepo) GetRoomByID(id int) (models.Room, error) {
 
 	var room models.Room
 
-	query := `select id, room_name, created_at, updated_at from rooms where id = $1`
+	query := `select id, room_name, created_at, updated_at 
+			   from rooms 
+			  where id = $1`
 
 	row := m.DB.QueryRowContext(ctx, query, id)
 	err := row.Scan(
@@ -176,7 +185,11 @@ func (m *postgresDBRepo) GetUserByID(id int) (models.User, error) {
 
 	defer cancel()
 
-	query := `select id, fisrt_name, last_name, email, password, access_level, created_at, updated_at from users where email = $1`
+	query := `select id, fisrt_name, last_name
+			    , email, password, access_level
+			    , created_at, updated_at 
+			  from users 
+			  where email = $1`
 
 	row := m.DB.QueryRowContext(ctx, query, id)
 
@@ -203,13 +216,17 @@ func (m *postgresDBRepo) GetUserByID(id int) (models.User, error) {
 
 // UpdateUser update user in the database
 func (m *postgresDBRepo) UpdateUser(u models.User) error {
+
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 
 	defer cancel()
 
-	query := `
-		update users set first_name = $1, last_name = $2, email = $3, access_level = $4, updated_at = $5
-`
+	query := `update users 
+			   set first_name = $1
+			   , last_name = $2
+			   , email = $3
+			   , access_level = $4
+			   , updated_at = $5`
 
 	_, err := m.DB.ExecContext(ctx, query,
 		u.FirstName,
@@ -248,4 +265,64 @@ func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, 
 	}
 
 	return id, hashedPassword, nil
+}
+
+// AllReservations returns a slice for all reservations
+func (m *postgresDBRepo) AllReservations() ([]models.Reservation, error) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	var reservations []models.Reservation
+
+	query := `select 
+				  r.id, r.first_name, r.last_name
+				, r.email, r.phone, r.start_date
+				, r.end_date, r.room_id, r.created_at
+				, r.updated_at
+				, rm.id, rm.room_name
+			 from reservations r
+			 join rooms rm on 
+			   (r.room_id = rm.id)
+			 where r.end_date > now()
+			 order by r.start_date asc`
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return reservations, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var i models.Reservation
+
+		err := rows.Scan(
+			&i.ID,
+			&i.FirstName,
+			&i.LastName,
+			&i.Email,
+			&i.Phone,
+			&i.StartDate,
+			&i.EndDate,
+			&i.RoomID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Room.ID,
+			&i.Room.RoomName,
+		)
+
+		if err != nil {
+			return reservations, err
+		}
+
+		reservations = append(reservations, i)
+	}
+
+	if err = rows.Err(); err != nil {
+		return reservations, err
+	}
+
+	return reservations, nil
 }

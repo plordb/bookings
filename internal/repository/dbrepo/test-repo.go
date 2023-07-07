@@ -157,7 +157,7 @@ func (m *testDBRepo) AllRooms() ([]models.Room, error) {
 }
 
 // GetRestrictionsForRoomByDate returns restrictions for a room by date range
-func (m *testDBRepo) GetRestrictionsForRoomByDate(roomID int, start, end time.Time) ([]models.RoomRestriction, error) {
+func (m *testDBRepo) GetRestrictionsForRoomByDate(roomID int, start time.Time, end time.Time) ([]models.RoomRestriction, error) {
 	var restrictions []models.RoomRestriction
 	// add a block
 	restrictions = append(restrictions, models.RoomRestriction{

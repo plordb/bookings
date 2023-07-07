@@ -28,9 +28,11 @@ var functions = template.FuncMap{}
 
 func listenForMail() {
 	go func() {
-		for {
-			_ = <-app.MailChan
-		}
+		/*
+			for {
+				_ = <-app.MailChan
+			}
+		*/
 	}()
 }
 
