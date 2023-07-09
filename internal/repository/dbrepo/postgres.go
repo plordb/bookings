@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/plordb/bookings/internal/models"
@@ -434,4 +435,80 @@ func (m *postgresDBRepo) GetReservationByID(id int) (models.Reservation, error) 
 	}
 
 	return res, nil
+}
+
+// UpdateReservation update reservation in the database
+func (m *postgresDBRepo) UpdateReservation(u models.Reservation) error {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	query := `update reservations 
+			   set first_name = $1
+			   , last_name = $2
+			   , email = $3
+			   , phone = $4
+			   , updated_at = $5
+			   where id = $6;`
+
+	sql, err := m.DB.ExecContext(ctx, query,
+		u.FirstName,
+		u.LastName,
+		u.Email,
+		u.Phone,
+		time.Now(),
+		u.ID,
+	)
+
+	if err != nil {
+
+		log.Println("sql(466)", sql)
+
+		return err
+	}
+
+	return nil
+}
+
+// DeleteReservation deletes one reservation by id
+func (m *postgresDBRepo) DeleteReservation(id int) error {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	query := `delete from reservations where id = $1;`
+
+	sql, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+
+		log.Println("sql (486)", sql)
+
+		return err
+	}
+
+	return nil
+}
+
+// UpdateProcessedForReservation updates processed for a reservation by id
+func (m *postgresDBRepo) UpdateProcessedForReservation(id, processed int) error {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+
+	defer cancel()
+
+	query := `update reservations
+			   Set processed = $1
+			   where id = $2;`
+
+	sql, err := m.DB.ExecContext(ctx, query, processed, id)
+	if err != nil {
+
+		log.Println("sql (508)", sql)
+
+		return err
+	}
+
+	return nil
 }
