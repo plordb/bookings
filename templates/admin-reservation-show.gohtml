@@ -9,6 +9,7 @@
         text-decoration-style: wavy;
         text-decoration-color: red;
     }
+
     </style>
 {{end}}
 
@@ -70,11 +71,16 @@
                 <input class="form-control {{with .Form.Errors.Get "phone"}} is-invalid {{end}}" id="phone" autocomplete="off" type="text" name="phone" value="{{$res.Phone}}" required>
             </div>
             
-            <input type="submit" class="btn btn-primary" value="Save">
+            <div style="float:left;">
+                <input type="submit" class="btn btn-primary" value="Save">
+                <a href="/admin/reservations-{{$src}}" class="btn btn-warning">Cancel</a>
+                <a href="#!" class="btn btn-info" onclick="processRes({{$res.ID}})">Mark as Processed</a>
+            </div>
 
-            <a href="/admin/reservations-{{$src}}" class="btn btn-warning">Cancel</a>
-
-            <a href="#!" class="btn btn-info" onclick="processRes({{$res.ID}})">Mark as Processed</a>
+            <div style="float:right">
+                <a href="#!" class="btn btn-danger" onclick="deleteRes({{$res.ID}})">Delete</a>
+            </div>
+            <div class="clearfix"></div>
 
         </form>
     </div>
@@ -94,6 +100,20 @@
 
                     if (result !== false) {
                         window.location.href = "/admin/process-reservation/{{$src}}/" + id;
+                    }
+                }
+            })
+        }
+
+        function deleteRes(id) {
+
+            attention.custom({
+                icon: 'warning',
+                msg: 'Are you sure?',
+                callback: function(result) {
+
+                    if (result !== false) {
+                        window.location.href = "/admin/delete-reservation/{{$src}}/" + id;
                     }
                 }
             })
