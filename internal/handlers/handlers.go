@@ -640,3 +640,21 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 
 	render.Template(w, r, "admin-reservations-calendar.gohtml", &models.TemplateData{})
 }
+
+// AdminProcessReservation marks a reservation as processed
+func (m *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Request) {
+
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	src := chi.URLParam(r, "src")
+
+	err := m.DB.UpdateProcessedForReservation(id, 1)
+	if err != nil {
+
+		log.Println("error(653)", err)
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Reservation marked as processed")
+
+	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+
+}
