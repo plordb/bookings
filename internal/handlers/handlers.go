@@ -61,13 +61,15 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 
 	res, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 	if !ok {
-		helpers.ServerError(w, errors.New("cannot get reservation from session"))
+		helpers.ServerError(w, errors.New("(64)cannot get reservation from session"))
 
 		return
 	}
 
 	room, err := m.DB.GetRoomByID(res.RoomID)
 	if err != nil {
+
+		log.Println("(72) Error")
 		helpers.ServerError(w, err)
 		//http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
@@ -112,6 +114,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	startDate, err := time.Parse(layout, sd)
 	if err != nil {
+
 		m.App.Session.Put(r.Context(), "error", "can't parse start date")
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 
@@ -173,6 +176,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	newReservationID, err := m.DB.InsertReservation(reservation)
 	if err != nil {
+
 		m.App.Session.Put(r.Context(), "error", "can't insert reservation into database!")
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 
@@ -259,16 +263,22 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 	layout := "2006-01-02"
 	startDate, err := time.Parse(layout, start)
 	if err != nil {
+
+		log.Println("(267) Error")
 		helpers.ServerError(w, err)
 	}
 
 	endDate, err := time.Parse(layout, end)
 	if err != nil {
+
+		log.Println("(274) Error")
 		helpers.ServerError(w, err)
 	}
 
 	rooms, err := m.DB.SearchAvailabilityForAllRooms(startDate, endDate)
 	if err != nil {
+
+		log.Println("(281) Error")
 		helpers.ServerError(w, err)
 
 		return
@@ -345,6 +355,8 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 
 	out, err := json.MarshalIndent(resp, "", "     ")
 	if err != nil {
+
+		log.Println("(359) Error")
 		helpers.ServerError(w, err)
 
 		return
@@ -396,6 +408,8 @@ func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 
 	roomID, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
+
+		log.Println("(412) Error")
 		helpers.ServerError(w, err)
 
 		return
@@ -403,6 +417,8 @@ func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 
 	res, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 	if !ok {
+
+		log.Println("(421) Error")
 		helpers.ServerError(w, err)
 
 		return
@@ -429,6 +445,8 @@ func (m *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
 
 	room, err := m.DB.GetRoomByID(roomID)
 	if err != nil {
+
+		log.Println("(449) Error")
 		helpers.ServerError(w, err)
 
 		return
@@ -507,7 +525,8 @@ func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request
 
 	reservations, err := m.DB.AllReservations()
 	if err != nil {
-		fmt.Println("Error(507)", err)
+
+		fmt.Println("Error(529)", err)
 
 		helpers.ServerError(w, err)
 
@@ -527,7 +546,8 @@ func (m *Repository) AdminNewReservations(w http.ResponseWriter, r *http.Request
 
 	reservations, err := m.DB.AllNewReservations()
 	if err != nil {
-		fmt.Println("Error(525)", err)
+
+		fmt.Println("Error(550)", err)
 
 		helpers.ServerError(w, err)
 
@@ -549,7 +569,7 @@ func (m *Repository) AdminShowReservation(w http.ResponseWriter, r *http.Request
 	id, err := strconv.Atoi(exploded[4])
 	if err != nil {
 
-		log.Println("Error(552)", err)
+		log.Println("Error(572)", err)
 
 		helpers.ServerError(w, err)
 
@@ -561,11 +581,17 @@ func (m *Repository) AdminShowReservation(w http.ResponseWriter, r *http.Request
 	stringMap := make(map[string]string)
 	stringMap["src"] = src
 
+	year := r.URL.Query().Get("y")
+	month := r.URL.Query().Get("m")
+
+	stringMap["month"] = month
+	stringMap["year"] = year
+
 	// get reservation from database
 	res, err := m.DB.GetReservationByID(id)
 	if err != nil {
 
-		log.Println("Error(568)", err)
+		log.Println("Error(588)", err)
 		helpers.ServerError(w, err)
 
 		return
@@ -587,7 +613,7 @@ func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Req
 	err := r.ParseForm()
 	if err != nil {
 
-		log.Println("Error(590)", err)
+		log.Println("Error(610)", err)
 		helpers.ServerError(w, err)
 
 		return
@@ -597,6 +623,7 @@ func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Req
 	id, err := strconv.Atoi(exploded[4])
 	if err != nil {
 
+		log.Println("Error(620)", err)
 		helpers.ServerError(w, err)
 
 		return
@@ -610,7 +637,7 @@ func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Req
 	res, err := m.DB.GetReservationByID(id)
 	if err != nil {
 
-		log.Println("Error(613)", err)
+		log.Println("Error(634)", err)
 		helpers.ServerError(w, err)
 	}
 
@@ -620,19 +647,26 @@ func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Req
 	res.Phone = r.Form.Get("phone")
 
 	err = m.DB.UpdateReservation(res)
-
 	if err != nil {
 
-		log.Println("Error(626)", err)
+		log.Println("Error(646)", err)
 		helpers.ServerError(w, err)
 
 		return
 	}
 
+	month := r.Form.Get("month")
+	year := r.Form.Get("year")
+
 	m.App.Session.Put(r.Context(), "flash", "changes saved")
 
-	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+	if year == "" {
 
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+	} else {
+
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%s&m=%s", year, month), http.StatusSeeOther)
+	}
 }
 
 // AdminRservationsCalendar displays the reservation calendar
@@ -679,14 +713,13 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 
 	rooms, err := m.DB.AllRooms()
 	if err != nil {
+
+		log.Println("Error(711)", err)
 		helpers.ServerError(w, err)
 		return
 	}
 
 	data["rooms"] = rooms
-
-	imprimir := false
-	pReserRest := false
 
 	for _, x := range rooms {
 
@@ -704,6 +737,7 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 		restrictions, err := m.DB.GetRestrictionsForRoomByDate(x.ID, firstOfMonth, lastOfMonth)
 		if err != nil {
 
+			log.Println("Error(734)", err)
 			helpers.ServerError(w, err)
 
 			return
@@ -711,7 +745,7 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 
 		for _, y := range restrictions {
 
-			if y.Reservation.Processed > 0 {
+			if y.ReservationID > 0 {
 
 				// it's a reservation
 				for d := y.StartDate; !d.After(y.EndDate); d = d.AddDate(0, 0, 1) {
@@ -728,54 +762,6 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 		data[fmt.Sprintf("reservation_map_%d", x.ID)] = reservationMap
 		data[fmt.Sprintf("block_map_%d", x.ID)] = blockMap
 
-		if imprimir {
-			for _, y := range restrictions {
-
-				if y.Reservation.Processed > 0 {
-
-					// it's a reservation
-					log.Printf("(736) Reservacion id: %d", y.ID)
-				} else {
-
-					// it's a restriction
-					log.Printf("(740) Restriction id: %d", y.ID)
-				}
-
-				resID := y.ReservationID
-				roomID := y.RoomID
-				restID := y.RestrictionID
-				sd := y.StartDate
-				ed := y.EndDate
-				rProc := y.Reservation.Processed
-
-				log.Printf("start date: %s", sd)
-				log.Printf("end date: %s", ed)
-				log.Printf("roomID: %d", roomID)
-				log.Printf("resevationID: %d", resID)
-				log.Printf("restrictionID: %d", restID)
-				log.Printf("processed: %d\n\n", rProc)
-			}
-		}
-
-		if pReserRest {
-
-			for str, valor := range reservationMap {
-
-				if valor > 0 {
-
-					log.Printf("(766) reservation_map_%d clave:valor => %s:%d\n", x.ID, str, valor)
-				}
-			}
-
-			for str, valor := range blockMap {
-
-				if valor > 0 {
-
-					log.Printf("(774) block_map_%d clave:valor => %s:%d\n", x.ID, str, valor)
-				}
-			}
-		}
-
 		m.App.Session.Put(r.Context(), fmt.Sprintf("block_map_%d", x.ID), blockMap)
 	}
 
@@ -791,13 +777,22 @@ func (m *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Requ
 
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 	src := chi.URLParam(r, "src")
+	err := m.DB.UpdateProcessedForReservation(id, 1)
+	if err != nil {
 
-	_ = m.DB.UpdateProcessedForReservation(id, 1)
+		log.Println("(783)Error", err)
+	}
+
+	year := r.URL.Query().Get("y")
+	month := r.URL.Query().Get("m")
 
 	m.App.Session.Put(r.Context(), "flash", "Reservation marked as processed")
 
-	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
-
+	if year == "" {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%s&m=%s", year, month), http.StatusSeeOther)
+	}
 }
 
 // AdminDeleteReservation deletes a reservation
@@ -808,10 +803,16 @@ func (m *Repository) AdminDeleteReservation(w http.ResponseWriter, r *http.Reque
 
 	_ = m.DB.DeleteReservation(id)
 
+	year := r.URL.Query().Get("y")
+	month := r.URL.Query().Get("m")
+
 	m.App.Session.Put(r.Context(), "flash", "Reservation deleted")
 
-	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
-
+	if year == "" {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%s&m=%s", year, month), http.StatusSeeOther)
+	}
 }
 
 // AdminPostReservationsCalendar handles post of reservation calendar
@@ -820,6 +821,7 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 	err := r.ParseForm()
 	if err != nil {
 
+		log.Println("Error(803)", err)
 		helpers.ServerError(w, err)
 
 		return
@@ -829,6 +831,70 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 	month, _ := strconv.Atoi(r.Form.Get("m"))
 
 	// process blocks
+	rooms, err := m.DB.AllRooms()
+	if err != nil {
+
+		log.Println("Error(816)", err)
+		helpers.ServerError(w, err)
+
+		return
+	}
+
+	form := forms.New(r.PostForm)
+
+	for _, x := range rooms {
+
+		// Get the block map from the session.
+		// Loop through entire map, if we have an entry in the map
+		//that does not exist in our data, and if the restriction
+		// id > 0, then it is a block we need to remove.
+
+		curMap := m.App.Session.Get(r.Context(), fmt.Sprintf("block_map_%d", x.ID)).(map[string]int)
+
+		for name, value := range curMap {
+
+			if val, ok := curMap[name]; ok {
+
+				// only pay attention to values > 0, and that are not in the form post
+				// the rest are just placeholders for days without block
+				if val > 0 {
+					if !form.Has(fmt.Sprintf("remove_block_%d_%s", x.ID, name)) {
+
+						// delete the restriction by id
+						err := m.DB.DeleteBlockByID(value)
+						if err != nil {
+
+							log.Println("(846) Error al eliminar", err)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// now handle new blocks
+	for name1 := range r.PostForm {
+
+		if strings.HasPrefix(name1, "add_block") {
+
+			exploded := strings.Split(name1, "_")
+			roomID, _ := strconv.Atoi(exploded[2])
+
+			t, err1 := time.Parse("2006-01-2", exploded[3])
+			if err1 != nil {
+
+				log.Println("(865) fecha(exploded[3])", exploded[3])
+				log.Println("(866) Error en la fecha", err1)
+			}
+
+			// insert a new block
+			err := m.DB.InsertBlockForRoom(roomID, t)
+			if err != nil {
+
+				log.Println("(873) Error al insertar", err)
+			}
+		}
+	}
 
 	m.App.Session.Put(r.Context(), "flash", "Changes saved")
 
