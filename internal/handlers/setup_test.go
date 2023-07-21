@@ -3,20 +3,19 @@ package handlers
 import (
 	"encoding/gob"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"testing"
 	"time"
-
-	"html/template"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/justinas/nosurf"
 	"github.com/plordb/bookings/internal/config"
-	driverDef "github.com/plordb/bookings/internal/driver"
 	"github.com/plordb/bookings/internal/models"
 	"github.com/plordb/bookings/internal/render"
 )
@@ -24,20 +23,20 @@ import (
 var app config.AppConfig
 var session *scs.SessionManager
 var pathToTemplates = "./../../templates"
-var functions = template.FuncMap{}
 
-func listenForMail() {
-	go func() {
-		/*
-			for {
-				_ = <-app.MailChan
-			}
-		*/
-	}()
+var functions = template.FuncMap{
+	"humanDate":  render.HumanDate,
+	"formatDate": render.FormatDate,
+	"iterate":    render.Iterate,
+	"add":        render.Add,
 }
 
-func getRoutes() http.Handler {
+func TestMain(m *testing.M) {
 	gob.Register(models.Reservation{})
+	gob.Register(models.User{})
+	gob.Register(models.Room{})
+	gob.Register(models.Restriction{})
+	gob.Register(map[string]int{})
 
 	// change this to true when in production
 	app.InProduction = false
@@ -58,7 +57,6 @@ func getRoutes() http.Handler {
 
 	mailChan := make(chan models.MailData)
 	app.MailChan = mailChan
-
 	defer close(mailChan)
 
 	listenForMail()
@@ -71,15 +69,22 @@ func getRoutes() http.Handler {
 	app.TemplateCache = tc
 	app.UseCache = true
 
-	// @todo add a real DB reference
-	dbRepo := driverDef.DB{}
-
-	repo := NewRepo(&app, &dbRepo)
-
+	repo := NewTestRepo(&app)
 	NewHandlers(repo)
-
 	render.NewRenderer(&app)
 
+	os.Exit(m.Run())
+}
+
+func listenForMail() {
+	go func() {
+		for {
+			_ = <-app.MailChan
+		}
+	}()
+}
+
+func getRoutes() http.Handler {
 	mux := chi.NewRouter()
 
 	mux.Use(middleware.Recoverer)
@@ -88,7 +93,7 @@ func getRoutes() http.Handler {
 
 	mux.Get("/", Repo.Home)
 	mux.Get("/about", Repo.About)
-	mux.Get("/generals-quarter", Repo.Generals)
+	mux.Get("/generals-quarters", Repo.Generals)
 	mux.Get("/majors-suite", Repo.Majors)
 
 	mux.Get("/search-availability", Repo.Availability)
@@ -101,7 +106,23 @@ func getRoutes() http.Handler {
 	mux.Post("/make-reservation", Repo.PostReservation)
 	mux.Get("/reservation-summary", Repo.ReservationSummary)
 
-	fileServer := http.FileServer(http.Dir("./static"))
+	mux.Get("/user/login", Repo.ShowLogin)
+	mux.Post("/user/login", Repo.PostShowLogin)
+	mux.Get("/user/logout", Repo.Logout)
+
+	mux.Get("/admin/dashboard", Repo.AdminDashboard)
+
+	mux.Get("/admin/reservations-new", Repo.AdminNewReservations)
+	mux.Get("/admin/reservations-all", Repo.AdminAllReservations)
+	mux.Get("/admin/reservations-calendar", Repo.AdminReservationsCalendar)
+	mux.Post("/admin/reservations-calendar", Repo.AdminPostReservationsCalendar)
+	mux.Get("/admin/process-reservation/{src}/{id}/do", Repo.AdminProcessReservation)
+	mux.Get("/admin/delete-reservation/{src}/{id}/do", Repo.AdminDeleteReservation)
+
+	mux.Get("/admin/reservations/{src}/{id}/show", Repo.AdminShowReservation)
+	mux.Post("/admin/reservations/{src}/{id}", Repo.AdminPostShowReservation)
+
+	fileServer := http.FileServer(http.Dir("./static/"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
 	return mux
@@ -117,42 +138,43 @@ func NoSurf(next http.Handler) http.Handler {
 		Secure:   app.InProduction,
 		SameSite: http.SameSiteLaxMode,
 	})
-
 	return csrfHandler
 }
 
 // SessionLoad loads and saves the session on every request
 func SessionLoad(next http.Handler) http.Handler {
-
 	return session.LoadAndSave(next)
 }
 
-// CreateTestTemplateCache create a templatecache as a map
+// CreateTestTemplateCache creates a template cache as a map
 func CreateTestTemplateCache() (map[string]*template.Template, error) {
 
 	myCache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob(fmt.Sprintf("%s/*.gohtml", pathToTemplates))
+	pages, err := filepath.Glob(fmt.Sprintf("%s/*.page.tmpl", pathToTemplates))
 	if err != nil {
+		log.Println(err)
 		return myCache, err
 	}
 
 	for _, page := range pages {
 		name := filepath.Base(page)
-
 		ts, err := template.New(name).Funcs(functions).ParseFiles(page)
 		if err != nil {
+			log.Println(err)
 			return myCache, err
 		}
 
-		matches, err := filepath.Glob(fmt.Sprintf("%s/*.layout.gohtml", pathToTemplates))
+		matches, err := filepath.Glob(fmt.Sprintf("%s/*.layout.tmpl", pathToTemplates))
 		if err != nil {
+			log.Println(err)
 			return myCache, err
 		}
 
 		if len(matches) > 0 {
-			ts, err = ts.ParseGlob(fmt.Sprintf("%s/*.layout.gohtml", pathToTemplates))
+			ts, err = ts.ParseGlob(fmt.Sprintf("%s/*.layout.tmpl", pathToTemplates))
 			if err != nil {
+				log.Println(err)
 				return myCache, err
 			}
 		}

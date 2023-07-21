@@ -38,6 +38,14 @@ func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	}
 }
 
+// NewTestRepo creates a new repository
+func NewTestRepo(a *config.AppConfig) *Repository {
+	return &Repository{
+		App: a,
+		DB:  dbrepo.NewTestingsRepo(a),
+	}
+}
+
 // NewHandlers sets the repository for the handlers
 func NewHandlers(r *Repository) {
 	Repo = r
@@ -378,7 +386,7 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	if !ok {
 		m.App.ErrorLog.Println("Can't get error from session")
 		m.App.Session.Put(r.Context(), "error", "Can't get reservation from session")
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 
 		return
 	}
@@ -468,6 +476,7 @@ func (m *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
 
 // ShowLogin shows the login screen
 func (m *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
+
 	render.Template(w, r, "login.gohtml", &models.TemplateData{
 		Form: forms.New(nil),
 	})
@@ -475,10 +484,12 @@ func (m *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
 
 // PostShowLogin handles logging the user in
 func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
+
 	_ = m.App.Session.RenewToken(r.Context())
 
 	err := r.ParseForm()
 	if err != nil {
+
 		log.Println(err)
 	}
 
