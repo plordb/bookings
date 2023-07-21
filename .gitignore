@@ -3,4 +3,17 @@ subo.sh
 test.sh
 testfunc.sh
 html-source/
+/cmd/web/main_test.go
+/cmd/web/middleware_test.go
+/cmd/web/routes_test.go
+/cmd/web/setup_test.go
+/internal/forms/errors_test.go
+/internal/forms/forms_test.go
+/internal/handlers/handlers_test.go
+/internal/handlers/setup_test.go
+/internal/helpers/helpers_test.go
+/internal/render/render_test.go
+/internal/render/setup_test.go
+/internal/repository/dbrepo/test-repo.go
+
 database.yml
