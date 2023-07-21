@@ -15,5 +15,4 @@ html-source/
 /internal/render/render_test.go
 /internal/render/setup_test.go
 /internal/repository/dbrepo/test-repo.go
-
 database.yml
